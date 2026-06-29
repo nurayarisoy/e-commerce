@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Toast animation */
+@keyframes toast-in {
+  from { transform: translateY(-8px) scale(0.98); opacity: 0 }
+  to { transform: translateY(0) scale(1); opacity: 1 }
+}
+.animate-toast-in {
+  animation: toast-in 180ms cubic-bezier(.2,.9,.2,1) both;
+}
+
+/* Badge transition helper (uses existing tailwind transition classes too) */
+.badge-bump {
+  transition: transform 220ms cubic-bezier(.2,.8,.2,1);
+}
