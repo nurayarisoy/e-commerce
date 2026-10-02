@@ -8,20 +8,21 @@ export const useCartStore = create((set) => ({
   // Accept quantity as second arg (default 1)
   addToCart: (product, qty = 1) =>
     set((state) => {
+      const quantityToAdd = Math.min(99, Math.max(1, Math.floor(Number(qty) || 1)));
       const existing = state.cart.find((item) => item.id === product.id);
 
       if (existing) {
         return {
           cart: state.cart.map((item) =>
             item.id === product.id
-              ? { ...item, quantity: item.quantity + qty }
+              ? { ...item, quantity: Math.min(99, (item.quantity || 1) + quantityToAdd) }
               : item
           ),
         };
       }
 
       return {
-        cart: [...state.cart, { ...product, quantity: qty }],
+        cart: [...state.cart, { ...product, quantity: quantityToAdd }],
       };
     }),
 
@@ -29,7 +30,7 @@ export const useCartStore = create((set) => ({
     set((state) => ({
       cart: state.cart.map((item) =>
         item.id === id
-          ? { ...item, quantity: item.quantity + 1 }
+          ? { ...item, quantity: Math.min(99, (item.quantity || 1) + 1) }
           : item
       ),
     })),
@@ -49,6 +50,8 @@ export const useCartStore = create((set) => ({
     set((state) => ({
       cart: state.cart.filter((item) => item.id !== id),
     })),
+
+  clear: () => set({ cart: [] }),
 }));
 
 // Persist cart to localStorage and rehydrate on client

@@ -33,7 +33,7 @@ export default function AddToCartButton({ product }) {
       };
 
       // show a toast with undo
-      useUIStore.getState().showToast(`${product.name} sepete eklendi (${qty})`, { undo });
+      useUIStore.getState().showToast(`${product.name} wurde ${qty}× in den Warenkorb gelegt.`, { undo });
       setDone(true);
       setTimeout(() => setDone(false), 1200);
     } finally {
@@ -47,21 +47,23 @@ export default function AddToCartButton({ product }) {
         <button
           className="px-3"
           onClick={() => setQty((q) => Math.max(1, q - 1))}
-          aria-label="Azalt"
+          aria-label="Menge verringern"
         >
           -
         </button>
         <input
           type="number"
           min={1}
+          max={99}
           value={qty}
-          onChange={(e) => setQty(Math.max(1, Number(e.target.value || 1)))}
+          onChange={(e) => setQty(Math.min(99, Math.max(1, Number(e.target.value || 1))))}
           className="w-14 text-center p-1"
         />
         <button
-          className="px-3"
-          onClick={() => setQty((q) => q + 1)}
-          aria-label="Arttır"
+          className="px-3 disabled:opacity-40"
+          onClick={() => setQty((q) => Math.min(99, q + 1))}
+          disabled={qty >= 99}
+          aria-label="Menge erhöhen"
         >
           +
         </button>
@@ -72,7 +74,7 @@ export default function AddToCartButton({ product }) {
         onClick={handleAdd}
         disabled={adding}
       >
-        {adding ? "Ekleniyor..." : done ? "Eklendi" : `Sepete ekle (${qty})`}
+        {adding ? "Wird hinzugefügt …" : done ? "Hinzugefügt" : `In den Warenkorb (${qty})`}
       </button>
     </div>
   );

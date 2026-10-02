@@ -64,9 +64,9 @@ function Toast({ toast, onClose }) {
           <button
             onClick={handleUndo}
             className="mt-1 text-xs text-blue-200 hover:text-white"
-            aria-label="Geri al"
+            aria-label="Rückgängig"
           >
-            Geri al
+            Rückgängig
           </button>
         )}
       </div>

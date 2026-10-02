@@ -1,87 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# MyShop
 
-## GitHub
-
-- Repository: [nurayarisoy/e-commerce](https://github.com/nurayarisoy/e-commerce)
-
-## Projektbeschreibung (Deutsch)
-
-Dieses Projekt ist ein einfacher E-Commerce-Frontend-Prototyp fuer den Verkauf von Teppichen.
-Es enthaelt Produktseiten, Warenkorb-Flow, Checkout-Seiten sowie einen geschuetzten Admin-Bereich.
+Deutscher E-Commerce-Prototyp mit Next.js App Router, React, Tailwind CSS, Zustand, Prisma, PostgreSQL und Stripe Checkout.
 
 ## Funktionen
 
-- Produktliste und Produktdetailseiten
-- Warenkorb mit Mengenverwaltung
-- Checkout-Flow mit Bestellabschluss
-- Geschuetzter Admin-Bereich fuer interne Verwaltung
+- Deutsche Produktoberflächen und Preise in EUR
+- Warenkorb mit serverseitiger Preisberechnung aus dem Produktkatalog
+- Bestellungen mit Status `PENDING_PAYMENT` in PostgreSQL
+- Gehosteter Stripe Checkout; der Zahlungsstatus wird ausschließlich per signiertem Webhook aktualisiert
+- Dynamische Zahlungsmethoden über das Stripe-Dashboard
 
-## Lokale Entwicklung
+Die Produktnamen und Preise in `src/mock/products.js` sind Beispieldaten. Vor dem Verkauf müssen echte Produkte und EUR-Preise hinterlegt werden.
 
-Voraussetzungen:
+## Lokale Einrichtung
 
-- Node.js 18+
-- npm
-
-Start:
+Voraussetzungen: Node.js 20.9+, PostgreSQL und ein Stripe-Konto.
 
 ```bash
 npm install
+cp .env.example .env
+```
+
+Trage in `.env` die PostgreSQL-Verbindung, `SITE_URL` und Stripe-Testschlüssel ein. Danach:
+
+```bash
+npm run db:generate
+npm run db:push
 npm run dev
 ```
 
-Danach ist die App unter `http://localhost:3000` erreichbar.
+Die Anwendung läuft unter `http://localhost:3000`.
 
-## Deployment
+Für lokale Webhooks kann die Stripe CLI verwendet werden:
 
-Empfohlenes Hosting: Vercel.
+```bash
+stripe listen --forward-to localhost:3000/api/stripe/webhook
+```
+
+Den ausgegebenen `whsec_...`-Wert als `STRIPE_WEBHOOK_SECRET` eintragen. Schlüssel niemals in `NEXT_PUBLIC_*` Variablen speichern.
+
+Checkout ist standardmäßig deaktiviert. Lege im Stripe-Dashboard einen Versandtarif für Deutschland an und trage dessen ID als `STRIPE_SHIPPING_RATE_ID` ein. Wenn Stripe Tax für dein Unternehmen eingerichtet ist, kann es mit `STRIPE_AUTOMATIC_TAX_ENABLED=true` aktiviert werden. Setze `CHECKOUT_ENABLED=true` erst, wenn Datenbank, Stripe-Testkonto, Versand und Steuerregeln geprüft sind.
+
+## Zahlungsmethoden
+
+Stripe Checkout verwendet die dynamische Zahlungsmethodenauswahl. Aktiviere im Stripe-Dashboard die für dein Unternehmen verfügbaren Methoden, zum Beispiel Karte, PayPal, Klarna und SEPA-Lastschrift. Verfügbarkeit hängt von Stripe-Konto, Kundschaft, Währung und Transaktion ab. Checkout ist auf Lieferadressen in Deutschland und EUR eingestellt.
+
+Der Webhook-Endpunkt ist `POST /api/stripe/webhook`. Bestellungen bleiben `PENDING_PAYMENT`, bis Stripe einen verifizierten Erfolgs-Webhook sendet. SEPA-Zahlungen können verzögert bestätigt werden. Karten, PayPal, Klarna und SEPA-Lastschrift müssen im Stripe-Dashboard aktiviert sein und hängen von der Berechtigung des Stripe-Kontos ab.
+
+## Vor dem Livegang
+
+Versandkosten, Umsatzsteuer/Stripe Tax, echte Produktpreise, Impressum, Datenschutz, AGB und Widerruf müssen passend zum Unternehmen konfiguriert und rechtlich geprüft werden. Der Prototyp berechnet aktuell weder Versandkosten noch Steuern.
 
 ```bash
 npm run build
 npm start
 ```
-
-Produktiv verwendete URL (Alias):
-
-- `https://frontend-ten-blond-39.vercel.app`
-
-## Admin-Zugang
-
-- Admin-Login: `https://frontend-ten-blond-39.vercel.app/admin`
-- Der Zugriff erfolgt ueber das in der Server-Umgebung gesetzte Passwort (z. B. `ADMIN_PASSWORD`).
-- Niemals Passwoerter oder Secrets in `NEXT_PUBLIC_*` Variablen speichern.
-
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

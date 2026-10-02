@@ -1,7 +1,7 @@
 export const products = [
   {
     id: 1,
-    name: "Ürün 1",
+    name: "Produkt 1",
     price: 120,
     image: "/images/product1-1.svg",
     images: [
@@ -9,11 +9,11 @@ export const products = [
       "/images/product1-2.svg",
       "/images/product1-3.svg",
     ],
-    description: "Bu, Ürün 1 için örnek açıklamadır. Yüksek kaliteli ve uygun fiyatlıdır.",
+    description: "Ein sorgfältig ausgewähltes Produkt mit hochwertiger Verarbeitung.",
   },
   {
     id: 2,
-    name: "Ürün 2",
+    name: "Produkt 2",
     price: 230,
     image: "/images/product2-1.svg",
     images: [
@@ -21,11 +21,11 @@ export const products = [
       "/images/product2-2.svg",
       "/images/product2-3.svg",
     ],
-    description: "Bu, Ürün 2 için örnek açıklamadır. Popüler bir üründür.",
+    description: "Ein beliebtes Produkt für den täglichen Gebrauch.",
   },
   {
     id: 3,
-    name: "Ürün 3",
+    name: "Produkt 3",
     price: 310,
     image: "/images/product3-1.svg",
     images: [
@@ -33,6 +33,6 @@ export const products = [
       "/images/product3-2.svg",
       "/images/product3-3.svg",
     ],
-    description: "Bu, Ürün 3 için örnek açıklamadır. Kaliteli malzeme ile üretilmiştir.",
+    description: "Aus ausgewählten Materialien gefertigt und langlebig verarbeitet.",
   },
 ];

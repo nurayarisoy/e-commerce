@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 
-export default function ProductGallery({ images = [] }) {
+export default function ProductGallery({ images = [], productName = "Produkt" }) {
   const [index, setIndex] = useState(0);
   const [scale, setScale] = useState(1);
   const [tx, setTx] = useState(0);
@@ -25,9 +25,6 @@ export default function ProductGallery({ images = [] }) {
   const [bounds, setBounds] = useState({ maxTx: 0, maxTy: 0 });
 
   useEffect(() => {
-    setScale(1); // reset zoom when image changes
-    setTx(0);
-    setTy(0);
     txRef.current = 0;
     tyRef.current = 0;
     // recalc bounds after image loads
@@ -46,10 +43,12 @@ export default function ProductGallery({ images = [] }) {
       const maxTy = Math.max(0, (displayedH * 1 - ch) / 2);
       setBounds({ displayedW, displayedH, cw, ch, maxTx, maxTy });
     };
-    // calc soon and on resize
-    calc();
+    const frame = requestAnimationFrame(calc);
     window.addEventListener("resize", calc);
-    return () => window.removeEventListener("resize", calc);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", calc);
+    };
   }, [index]);
 
   const zoomIn = () => setScale((s) => Math.min(3, +(s + 0.25).toFixed(2)));
@@ -65,7 +64,7 @@ export default function ProductGallery({ images = [] }) {
   const onPointerDown = (e) => {
     // double-tap detection for touch
     if (e.pointerType === "touch") {
-      const now = Date.now();
+      const now = e.timeStamp;
       const last = lastTapRef.current;
       const dx = Math.abs(e.clientX - last.x);
       const dy = Math.abs(e.clientY - last.y);
@@ -287,8 +286,18 @@ export default function ProductGallery({ images = [] }) {
     const onKey = (ev) => {
       if (ev.key === "ArrowLeft") {
         setIndex((i) => Math.max(0, i - 1));
+        setScale(1);
+        setTx(0);
+        setTy(0);
+        txRef.current = 0;
+        tyRef.current = 0;
       } else if (ev.key === "ArrowRight") {
         setIndex((i) => Math.min(images.length - 1, i + 1));
+        setScale(1);
+        setTx(0);
+        setTy(0);
+        txRef.current = 0;
+        tyRef.current = 0;
       } else if (ev.key === "+" || ev.key === "=") {
         zoomIn();
       } else if (ev.key === "-" || ev.key === "_") {
@@ -312,7 +321,7 @@ export default function ProductGallery({ images = [] }) {
         ref={containerRef}
         tabIndex={0}
         role="group"
-        aria-label="Product image gallery"
+        aria-label={`Bildergalerie für ${productName}`}
         className="w-full h-72 md:h-96 bg-gray-50 rounded overflow-hidden flex items-center justify-center"
       >
         <div
@@ -329,7 +338,7 @@ export default function ProductGallery({ images = [] }) {
             maxWidth: "100%",
             maxHeight: "100%",
             touchAction: scale > 1 ? "none" : "auto",
-            cursor: scale > 1 ? (draggingRef.current ? "grabbing" : "grab") : "default",
+            cursor: scale > 1 ? "grab" : "default",
             display: "block",
           }}
         >
@@ -337,7 +346,7 @@ export default function ProductGallery({ images = [] }) {
           <img
             ref={imgRef}
             src={images[index]}
-            alt={`product-${index}`}
+            alt={`${productName}, Bild ${index + 1}`}
             className="block w-full h-72 md:h-96 object-contain select-none"
             draggable={false}
           />
@@ -349,11 +358,21 @@ export default function ProductGallery({ images = [] }) {
           {images.map((src, i) => (
             <button
               key={src}
-              onClick={() => setIndex(i)}
-              className={`border rounded p-0.5 ${i === index ? "ring-2 ring-blue-500" : ""}`}
+              type="button"
+              onClick={() => {
+                setIndex(i);
+                setScale(1);
+                setTx(0);
+                setTy(0);
+                txRef.current = 0;
+                tyRef.current = 0;
+              }}
+              aria-label={`Bild ${i + 1} anzeigen`}
+              aria-pressed={i === index}
+              className={`rounded-sm border p-0.5 ${i === index ? "ring-2 ring-emerald-700" : ""}`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={src} alt={`thumb-${i}`} className="w-16 h-12 object-cover" />
+              <img src={src} alt="" className="h-12 w-16 object-cover" />
             </button>
           ))}
         </div>
@@ -362,7 +381,7 @@ export default function ProductGallery({ images = [] }) {
           <button
             onClick={zoomOut}
             className="px-3 py-1 bg-gray-200 rounded"
-            aria-label="Zoom out"
+            aria-label="Verkleinern"
           >
             -
           </button>
@@ -370,7 +389,7 @@ export default function ProductGallery({ images = [] }) {
           <button
             onClick={zoomIn}
             className="px-3 py-1 bg-gray-200 rounded"
-            aria-label="Zoom in"
+            aria-label="Vergrößern"
           >
             +
           </button>
